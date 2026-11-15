@@ -49,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// A lista é carregada DEPOIS das ações, para já refletir a mudança
 $cargos = $con->query("SELECT * FROM cargos ORDER BY nome")->fetchAll();
 ?>
 <!doctype html>

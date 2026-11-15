@@ -46,7 +46,7 @@ $cargos = $con->query("SELECT nome FROM cargos ORDER BY nome")->fetchAll();
                     <input type="date" id="data_admissao" name="data_admissao" class="form-control" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Enviar</button>
-                <a href="index.php" class="btn btn-secondary">Voltar</a>
+                <a href="consulta_membros.php" class="btn btn-secondary">Voltar</a>
             </form>
 
             <div class="mt-3">

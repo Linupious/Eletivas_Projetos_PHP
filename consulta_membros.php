@@ -12,8 +12,15 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h1 class="mb-0">Lista de Membros</h1>
                 <div class="d-flex gap-2">
-                    <a href="index.php" class="btn btn-secondary">Voltar ao início</a>
-                    <a href="cadastro_membros.php" class="btn btn-primary">Novo membro</a>
+                    <a href="index.php" class="btn btn-secondary">
+                        <i class="bi bi-house-door" aria-hidden="true"></i> Voltar ao início
+                    </a>
+                    <a href="cargos.php" class="btn btn-outline-secondary">
+                        <i class="bi bi-gear" aria-hidden="true"></i> Gerenciar cargos
+                    </a>
+                    <a href="cadastrar_membros.php" class="btn btn-primary">
+                        <i class="bi bi-person-plus" aria-hidden="true"></i> Novo membro
+                    </a>
                 </div>
             </div>
 

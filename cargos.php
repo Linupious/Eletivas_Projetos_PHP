@@ -58,6 +58,7 @@ $cargos = $con->query("SELECT * FROM cargos ORDER BY nome")->fetchAll();
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Gerenciar Cargos</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     </head>
     <body>
         <div class="container py-3">
@@ -71,7 +72,7 @@ $cargos = $con->query("SELECT * FROM cargos ORDER BY nome")->fetchAll();
                 <input type="hidden" name="acao" value="adicionar">
                 <div class="col-sm-8">
                     <label for="nome" class="form-label">Novo cargo</label>
-                    <input type="text" id="nome" name="nome" class="form-control" maxlength="60" required>
+                    <input type="text" id="nome" name="nome" class="form-control" maxlength="60" placeholder="Nome do cargo.." required>
                 </div>
                 <div class="col-sm-4 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary">Adicionar</button>
@@ -94,7 +95,11 @@ $cargos = $con->query("SELECT * FROM cargos ORDER BY nome")->fetchAll();
                                       onsubmit="return confirm('Remover este cargo?');">
                                     <input type="hidden" name="acao" value="remover">
                                     <input type="hidden" name="id" value="<?= (int)$c['id'] ?>">
-                                    <button type="submit" class="btn btn-sm btn-danger">Remover</button>
+                                    <button type="submit" class="btn btn-sm btn-danger"
+                                            title="Excluir cargo"
+                                            aria-label="Excluir cargo <?= htmlspecialchars($c['nome'], ENT_QUOTES, 'UTF-8') ?>">
+                                        <i class="bi bi-trash" aria-hidden="true"></i>
+                                    </button>
                                 </form>
                             </td>
                         </tr>
@@ -108,7 +113,10 @@ $cargos = $con->query("SELECT * FROM cargos ORDER BY nome")->fetchAll();
                 </tbody>
             </table>
 
-            <a href="cadastro_membros.php" class="btn btn-secondary">Voltar para o cadastro</a>
+            <div class="d-flex flex-column align-items-start gap-2">
+                <a href="cadastrar_membros.php" class="btn btn-secondary">Voltar</a>
+                <a href="index.php" class="btn btn-outline-secondary">Voltar ao início</a>
+            </div>
 
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
         </div>

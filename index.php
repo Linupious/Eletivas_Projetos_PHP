@@ -7,7 +7,7 @@
 </head>
 <body class="container py-3">
     <h1>Sistema de Controle de Tarefas</h1>
-    <a href="index_projetos.php" class="btn btn-primary">Projetos</a>
+    <a href="consulta_projetos.php" class="btn btn-primary">Projetos</a>
     <a href="consulta_membros.php" class="btn btn-primary">Membros</a>
     <a href="cargos.php" class="btn btn-primary">Cargos</a>
 </body>

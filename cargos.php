@@ -3,6 +3,16 @@ require_once("conexao.php");
 
 $mensagem = "";
 $tipo = "success";
+$confirmacaoCargo = null;
+
+$mensagensSucesso = [
+    'adicionado' => 'Cargo adicionado com sucesso!',
+    'removido' => 'Cargo removido com sucesso!'
+];
+$sucesso = isset($_GET['sucesso']) ? $_GET['sucesso'] : '';
+if (isset($mensagensSucesso[$sucesso])) {
+    $mensagem = $mensagensSucesso[$sucesso];
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $acao = isset($_POST['acao']) ? $_POST['acao'] : '';
@@ -20,7 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             try {
                 $resultado->execute();
-                $mensagem = "Cargo adicionado com sucesso!";
+                header("Location: cargos.php?sucesso=adicionado", true, 303);
+                exit;
             } catch (PDOException $e) {
                 $tipo = "danger";
                 if ($e->getCode() == 23000) {
@@ -29,6 +40,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $mensagem = "Erro ao adicionar o cargo.";
                 }
             }
+        }
+    }
+
+    if ($acao == 'confirmar_remocao') {
+        $id = (int)(isset($_POST['id']) ? $_POST['id'] : 0);
+        $resultado = $con->prepare("SELECT id, nome FROM cargos WHERE id = :id");
+        $resultado->bindParam(":id", $id, PDO::PARAM_INT);
+        $resultado->execute();
+        $confirmacaoCargo = $resultado->fetch();
+
+        if (!$confirmacaoCargo) {
+            $mensagem = "Esse cargo não foi encontrado.";
+            $tipo = "danger";
         }
     }
 
@@ -41,7 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         try {
             $resultado->execute();
-            $mensagem = "Cargo removido com sucesso!";
+            header("Location: cargos.php?sucesso=removido", true, 303);
+            exit;
         } catch (PDOException $e) {
             $mensagem = "Erro ao remover o cargo.";
             $tipo = "danger";
@@ -57,25 +82,44 @@ $cargos = $con->query("SELECT * FROM cargos ORDER BY nome")->fetchAll();
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Gerenciar Cargos</title>
+        <link rel="icon" type="image/png" href="images/logo.png">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     </head>
     <body>
-        <div class="container py-3">
+        <?php require_once("navbar.php"); ?>
+        <main class="container py-3">
             <h1>Gerenciar Cargos</h1>
 
             <?php if ($mensagem !== "") { ?>
                 <div class="alert alert-<?= $tipo ?>"><?= htmlspecialchars($mensagem) ?></div>
             <?php } ?>
 
+            <?php if ($confirmacaoCargo) { ?>
+                <div class="alert alert-warning">
+                    Deseja realmente excluir o cargo
+                    <strong><?= htmlspecialchars($confirmacaoCargo['nome']) ?></strong>?
+                    <form method="post" class="mt-3">
+                        <input type="hidden" name="acao" value="remover">
+                        <input type="hidden" name="id" value="<?= (int)$confirmacaoCargo['id'] ?>">
+                        <button type="submit" class="btn btn-danger btn-sm">Confirmar exclusão</button>
+                        <a href="cargos.php" class="btn btn-secondary btn-sm">Cancelar</a>
+                    </form>
+                </div>
+            <?php } ?>
+
             <form method="post" class="row g-2 mb-4">
                 <input type="hidden" name="acao" value="adicionar">
                 <div class="col-sm-8">
                     <label for="nome" class="form-label">Novo cargo</label>
-                    <input type="text" id="nome" name="nome" class="form-control" maxlength="60" placeholder="Nome do cargo.." required>
+                    <input type="text" id="nome" name="nome" class="form-control" maxlength="60"
+                           placeholder="Nome do cargo.." pattern="[\p{L} ]+"
+                           title="Números não são permitidos. Use apenas letras e espaços." required>
                 </div>
                 <div class="col-sm-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary">Adicionar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Adicionar
+                    </button>
                 </div>
             </form>
 
@@ -91,9 +135,8 @@ $cargos = $con->query("SELECT * FROM cargos ORDER BY nome")->fetchAll();
                         <tr>
                             <td><?= htmlspecialchars($c['nome']) ?></td>
                             <td class="text-end">
-                                <form method="post" class="d-inline"
-                                      onsubmit="return confirm('Remover este cargo?');">
-                                    <input type="hidden" name="acao" value="remover">
+                                <form method="post" class="d-inline">
+                                    <input type="hidden" name="acao" value="confirmar_remocao">
                                     <input type="hidden" name="id" value="<?= (int)$c['id'] ?>">
                                     <button type="submit" class="btn btn-sm btn-danger"
                                             title="Excluir cargo"
@@ -113,12 +156,6 @@ $cargos = $con->query("SELECT * FROM cargos ORDER BY nome")->fetchAll();
                 </tbody>
             </table>
 
-            <div class="d-flex flex-column align-items-start gap-2">
-                <a href="cadastrar_membros.php" class="btn btn-secondary">Voltar</a>
-                <a href="index.php" class="btn btn-outline-secondary">Voltar ao início</a>
-            </div>
-
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
-        </div>
+        </main>
     </body>
 </html>

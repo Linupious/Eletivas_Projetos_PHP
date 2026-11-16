@@ -1,8 +1,55 @@
 <?php
 require_once("conexao.php");
 
-$r = $con->prepare("DELETE FROM membros WHERE id = :id");
-$r->bindParam(":id", $_GET['id']);
-$r->execute();
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: consulta_membros.php");
+    exit;
+}
 
-header("Location: consulta_membros.php");
+$id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+if (!$id || $id < 1) {
+    header("Location: consulta_membros.php");
+    exit;
+}
+
+$consulta = $con->prepare("SELECT id, nome FROM membros WHERE id = :id");
+$consulta->bindParam(":id", $id, PDO::PARAM_INT);
+$consulta->execute();
+$membro = $consulta->fetch();
+
+if (!$membro) {
+    header("Location: consulta_membros.php");
+    exit;
+}
+
+if (isset($_POST['confirmar']) && $_POST['confirmar'] === '1') {
+    $excluir = $con->prepare("DELETE FROM membros WHERE id = :id");
+    $excluir->bindParam(":id", $id, PDO::PARAM_INT);
+    $excluir->execute();
+    header("Location: consulta_membros.php?sucesso=excluido", true, 303);
+    exit;
+}
+?>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Confirmar exclusão de membro</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <?php require_once("navbar.php"); ?>
+    <main class="container py-3">
+        <h1>Excluir membro</h1>
+        <p>Deseja realmente excluir <strong><?= htmlspecialchars($membro['nome']) ?></strong>?</p>
+        <form method="post">
+            <input type="hidden" name="id" value="<?= (int)$membro['id'] ?>">
+            <input type="hidden" name="confirmar" value="1">
+            <button type="submit" class="btn btn-danger">Confirmar exclusão</button>
+            <a href="consulta_membros.php" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </main>
+</body>
+</html>

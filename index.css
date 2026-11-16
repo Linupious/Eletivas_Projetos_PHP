@@ -1,0 +1,10 @@
+.home-menu {
+    max-width: 720px;
+    width: 100%;
+}
+
+.project-logo {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+}

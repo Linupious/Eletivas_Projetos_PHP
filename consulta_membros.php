@@ -32,10 +32,55 @@
 
             <?php
                 require_once("conexao.php");
-                $sql = "SELECT * FROM membros ORDER BY nome";
-                $resultado = $con->query($sql);
+                $busca = isset($_GET['busca']) && is_string($_GET['busca'])
+                    ? trim($_GET['busca'])
+                    : '';
+
+                if ($busca !== '') {
+                    $sql = "SELECT * FROM membros
+                            WHERE nome LIKE :nome
+                               OR cargo LIKE :cargo
+                               OR DATE_FORMAT(data_admissao, '%d/%m/%Y') LIKE :data_br
+                               OR data_admissao LIKE :data_iso
+                            ORDER BY nome";
+                    $resultado = $con->prepare($sql);
+                    $termo = '%' . $busca . '%';
+                    $resultado->execute([
+                        'nome' => $termo,
+                        'cargo' => $termo,
+                        'data_br' => $termo,
+                        'data_iso' => $termo
+                    ]);
+                } else {
+                    $resultado = $con->query("SELECT * FROM membros ORDER BY nome");
+                }
                 $dados = $resultado->fetchAll();
+                $totalResultados = count($dados);
             ?>
+
+            <form method="get" class="row g-2 align-items-center mb-3" role="search">
+                <div class="col">
+                    <label for="busca" class="visually-hidden">Buscar membro por nome, cargo ou data de admissão</label>
+                    <input type="search" class="form-control" id="busca" name="busca"
+                           value="<?= htmlspecialchars($busca, ENT_QUOTES, 'UTF-8') ?>"
+                           placeholder="Nome, cargo ou data de admissão">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="bi bi-search me-1" aria-hidden="true"></i>Buscar
+                    </button>
+                </div>
+                <?php if ($busca !== '') { ?>
+                    <div class="col-auto">
+                        <a href="consulta_membros.php" class="btn btn-outline-secondary">Limpar</a>
+                    </div>
+                <?php } ?>
+            </form>
+
+            <p class="text-secondary mb-2" aria-live="polite">
+                <?= $busca !== '' ? 'Resultados da busca: ' : 'Total de membros: ' ?>
+                <?= $totalResultados ?>
+            </p>
 
             <div class="table-responsive">
                 <table class="table table-striped align-middle">
@@ -76,10 +121,12 @@
                             </tr>
                         <?php } ?>
 
-                        <?php if (count($dados) == 0) { ?>
+                        <?php if ($totalResultados == 0) { ?>
                             <tr>
                                 <td colspan="6" class="text-center text-muted">
-                                    Nenhum membro cadastrado.
+                                    <?= $busca !== ''
+                                        ? 'Nenhum membro encontrado para "' . htmlspecialchars($busca, ENT_QUOTES, 'UTF-8') . '".'
+                                        : 'Nenhum membro cadastrado.' ?>
                                 </td>
                             </tr>
                         <?php } ?>

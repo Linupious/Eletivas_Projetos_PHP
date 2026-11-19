@@ -19,6 +19,10 @@
 -- Table structure for table `cargos`
 --
 
+CREATE DATABASE IF NOT EXISTS projetophp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE projetophp;
+
+
 DROP TABLE IF EXISTS `cargos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
